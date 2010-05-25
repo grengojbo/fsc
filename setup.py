@@ -48,5 +48,5 @@ setup(name='fsc',
         'Operating System :: OS Independent',
         'Topic :: Office/Business',
     ],
-    scripts=['scripts/fsb'],
+    scripts=['scripts/freeswitch-api.py'],
 )
