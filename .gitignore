@@ -10,7 +10,8 @@ urls_local.py
 secret.txt
 .project
 .pydevproject
-.egg-info/
+*.egg-info/
+*.cache/
 build/
 tmp/
 fabfile.py
