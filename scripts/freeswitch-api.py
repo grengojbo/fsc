@@ -60,7 +60,7 @@ def post_payment(options, rest_url):
     pay_user = 'u089103000'
     temp_txt = "".join([str(random.randint(0, 9)) for i in range(20)])
     pay_name = "add:::lincom3000:::payment:::{0}:::{1}".format(pay_user, temp_txt[0:7])
-    pay_amount = Decimal("10.05")
+    pay_amount = Decimal("100.05")
     pay_transaction_id = "{0}X{1}".format(int(time.time()), temp_txt)
     pay_details = "fig pyftn xnj"
     pay_date = '2010-05-25 22:05:34'
@@ -77,16 +77,24 @@ def post_payment(options, rest_url):
         else:
             print("transaction: {0} error".format(pay_transaction_id))
 
-def get_payment(options, rest_url, accaunt):
+def get_payment(options, rest_url, account):
     con = ClietAPI(rest_url, options)
-    mod_query = "/payment/query/{0}/{1}".format('2010-05-24', '2010-05-25')
-    res = con.search(mod_query, args)
+    mod_query = "/payment/query/{0}/{1}/".format('2010-05-24', '2010-05-26')
+    res = con.search(mod_query)
     if res:
+        #print("count: {0} cash: {1}".format(res.get("count"), res.get("payment").get("amount")))
         print("count: {0}".format(res.get("count")))
         print("next: {0}".format(res.get("next")))
         print("previous: {0}".format(res.get("previous")))
-    mod_query = "/payment/{0}/query/{1}/{2}".format('', '2010-05-24', '2010-05-25')
-    res = con.search(mod_query, args)
+        for p in res.get("payment"):
+            print("cash: {0}".format(p.get("amount")))
+    #mod_query = "/payment/{0}/query/{1}/{2}/".format(account.get("accountcode").get('username'), '2010-05-25', '2010-05-26')
+    #mod_query = "/payment/{0}/".format(account.get("accountcode").get('username'))
+    mod_query = "/payment/"
+    mod_query = '/payment/list/1274876663X48540537100116616803/'
+    res = con.search(mod_query)
+    print(res)
+
 #----------------------------------------------------------------------
 def main():
     """
@@ -109,9 +117,10 @@ def main():
     #get_account(options, rest_url)
     #post_account(options, rest_url)
     #delete_account(options, rest_url)
-    post_payment(options, rest_url)
-    accaunt = get_account_user(options, rest_url, username=pay_user)
-    print("cash: {0} username: {1}".format(accaunt.get("cash"), accaunt.get("accountcode").get('username')))
+    #post_payment(options, rest_url)
+    account = get_account_user(options, rest_url, username=pay_user)
+    print("cash: {0} username: {1}".format(account.get("cash"), account.get("accountcode").get('username')))
+    get_payment(options, rest_url, account)
 
 
 if __name__=='__main__':
