@@ -35,14 +35,16 @@ def get_account_user(options, rest_url, username):
 
 #----------------------------------------------------------------------
 def post_account(options, rest_url):
-    """"""
+    """
+    Добавляем пользователя
+    """
     con = ClietAPI(rest_url, options)
-    args={'username': 'u089103000', 'email': 'example@lincom3000.com.ua', 'enabled': 'false', 'password': 'asdf3365756j9753', 'first_name': 'first', 'last_name': 'last'}
+    args={'username': 'dil_lodoti', 'email': 'oleg.dolya@gmail.com', 'enabled': 'true', 'password': 'asdf3365756j9753', 'first_name': 'Олег', 'last_name': 'Доля'}
     res = con.save("post", '/account/', args)
-    args={'username': 'u089103004', 'email': 'example@lincom3000.com.ua', 'enabled': 'true',}
-    res = con.save("post", '/account/', args)
-    args={'enabled': 'true', 'first_name': 'hax nah'}
-    res = con.save("put", '/account/u089103000/', args)
+    #args={'username': 'u089103004', 'email': 'example@lincom3000.com.ua', 'enabled': 'true',}
+    #res = con.save("post", '/account/', args)
+    #args={'enabled': 'true', 'first_name': 'hax nah'}
+    #res = con.save("put", '/account/u089103000/', args)
     if res:
         print(res)
 
@@ -54,16 +56,13 @@ def delete_account(options, rest_url):
         print("Delete: {0}".format(res))
 
 #----------------------------------------------------------------------
-def post_payment(options, rest_url):
+def post_payment(options, rest_url, pay_user, moneys, pay_details="", pay_date='2010-05-25 22:05:34'):
     """"""
     con = ClietAPI(rest_url, options)
-    pay_user = 'u089103000'
     temp_txt = "".join([str(random.randint(0, 9)) for i in range(20)])
     pay_name = "add:::lincom3000:::payment:::{0}:::{1}".format(pay_user, temp_txt[0:7])
-    pay_amount = Decimal("100.05")
+    pay_amount = Decimal(moneys)
     pay_transaction_id = "{0}X{1}".format(int(time.time()), temp_txt)
-    pay_details = "fig pyftn xnj"
-    pay_date = '2010-05-25 22:05:34'
     code = "".join(str(pay_user)).join(str(pay_amount)).join(str(pay_transaction_id)).join(str(pay_name)).join(str(options.user))
     mcode = hashlib.md5()
     mcode.update(code.upper())
@@ -94,6 +93,24 @@ def get_payment(options, rest_url, account):
     mod_query = '/payment/list/1274876663X48540537100116616803/'
     res = con.search(mod_query)
     print(res)
+#----------------------------------------------------------------------
+def post_endpoint(options, rest_url, pay_user, phone):
+    """
+    Добавлям номер телефона к акаунту
+    """
+    con = ClietAPI(rest_url, options)
+    args={'phone': phone, 'username': pay_user, 'enable': 'true', 'password': '48337124', 'description': 'тестовый номер'}
+    res = con.save("post", '/endpoint/', args)
+    if res:
+        print(res)
+
+#----------------------------------------------------------------------
+def get_endpoint(options, rest_url, phone):
+    """"""
+    con = ClietAPI(rest_url, options)
+    res = con.search('/endpoint/phone/{0}/'.format(phone))
+    #print(res)
+    return res.get("phone")
 
 #----------------------------------------------------------------------
 def main():
@@ -109,18 +126,31 @@ def main():
         parser.print_help()
         sys.exit(2)
 
-    print('User: {0}'.format(options.user))
+    #print('User: {0}'.format(options.user))
     rest_url = "http://%s/api" % options.host
 
-    pay_user = 'u089103000'
-
-    #get_account(options, rest_url)
+    #pay_user = 'u089103000'
+    pay_user = "dil_lodoti"
+    #phone = "380895001010"
+    #phone = "380895005055"
+    #phone = "380895001111"
+    phone = "380895005050"
+    # Добавили акаунт
     #post_account(options, rest_url)
-    #delete_account(options, rest_url)
-    #post_payment(options, rest_url)
+    # Добавляем деньги
+    #post_payment(options, rest_url, pay_user, "10", pay_details="пробные деньги", pay_date='2010-06-24 01:05:34')
+    
+    # Смотрим акаунт
     account = get_account_user(options, rest_url, username=pay_user)
     print("cash: {0} username: {1}".format(account.get("cash"), account.get("accountcode").get('username')))
-    get_payment(options, rest_url, account)
+    post_endpoint(options, rest_url, pay_user, phone)
+    endpoint = get_endpoint(options, rest_url, phone)
+    
+    print("phone: {0} username: {1} password {2} enable:{3} sip server:{4}".format(endpoint.get("uid"), endpoint.get('username'), endpoint.get('password'), endpoint.get('enable'), endpoint.get('sip_server')))
+    #get_payment(options, rest_url, account)
+    
+    #get_account(options, rest_url)
+    #delete_account(options, rest_url)
 
 
 if __name__=='__main__':
