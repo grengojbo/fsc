@@ -127,31 +127,37 @@ def main():
         sys.exit(2)
 
     #print('User: {0}'.format(options.user))
-    rest_url = "http://%s/api" % options.host
+    rest_url = "http://%s" % options.host
 
     #pay_user = 'u089103000'
-    pay_user = "dil_lodoti"
+    #pay_user = "dil_lodoti"
+    pay_user = "oleg"
     #phone = "380895001010"
     #phone = "380895005055"
     #phone = "380895001111"
-    phone = "380895005050"
+    #phone = "380895005050"
+    phone = "380895005010"
     # Добавили акаунт
     #post_account(options, rest_url)
     # Добавляем деньги
     #post_payment(options, rest_url, pay_user, "10", pay_details="пробные деньги", pay_date='2010-06-24 01:05:34')
-    
+
     # Смотрим акаунт
-    account = get_account_user(options, rest_url, username=pay_user)
-    print("cash: {0} username: {1}".format(account.get("cash"), account.get("accountcode").get('username')))
+    #account = get_account_user(options, rest_url, username=pay_user)
+    #print("cash: {0} username: {1}".format(account.get("cash"), account.get("accountcode").get('username')))
     post_endpoint(options, rest_url, pay_user, phone)
-    endpoint = get_endpoint(options, rest_url, phone)
-    
-    print("phone: {0} username: {1} password {2} enable:{3} sip server:{4}".format(endpoint.get("uid"), endpoint.get('username'), endpoint.get('password'), endpoint.get('enable'), endpoint.get('sip_server')))
+    #endpoint = get_endpoint(options, rest_url, phone)
+
+    #print("phone: {0} username: {1} password {2} enable:{3} sip server:{4}".format(endpoint.get("uid"), endpoint.get('username'), endpoint.get('password'), endpoint.get('enable'), endpoint.get('sip_server')))
     #get_payment(options, rest_url, account)
-    
+
     #get_account(options, rest_url)
     #delete_account(options, rest_url)
 
+def mymain():
+    d = "1,2,3,4,6"
+    for i in eval(d):
+        print("i: {0}".format(i))
 
 if __name__=='__main__':
     main()
