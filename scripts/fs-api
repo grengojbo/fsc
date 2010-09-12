@@ -1,0 +1,131 @@
+#!/usr/bin/env python
+#coding:utf-8
+# Author:   --<>
+# Purpose:
+# Created: 25.05.2010
+from __future__ import print_function
+import sys
+import os
+import optparse
+from decimal import Decimal
+from fsc.client import ClietAPI
+import time, datetime
+import hashlib
+import random
+import ConfigParser
+from fsc import account
+
+PATH_CACHE = ".cache"
+
+#----------------------------------------------------------------------
+
+def post_payment(options, rest_url, pay_user, moneys, pay_details="", pay_date='2010-05-25 22:05:34'):
+    """"""
+    con = ClietAPI(rest_url, options)
+    temp_txt = "".join([str(random.randint(0, 9)) for i in range(20)])
+    pay_name = "add:::lincom3000:::payment:::{0}:::{1}".format(pay_user, temp_txt[0:7])
+    pay_amount = Decimal(moneys)
+    pay_transaction_id = "{0}X{1}".format(int(time.time()), temp_txt)
+    code = "".join(str(pay_user)).join(str(pay_amount)).join(str(pay_transaction_id)).join(str(pay_name)).join(str(options.user))
+    mcode = hashlib.md5()
+    mcode.update(code.upper())
+    #mcode.hexdigest()
+    args={'username': pay_user, 'name': pay_name, 'amount': str(pay_amount), 'transaction_id': pay_transaction_id, 'details': pay_details, 'pay_date': pay_date}
+    #print("args: {0}".format(args))
+    res = con.save("post", '/payment/', args)
+    if res:
+        if res.get("reason_code") == mcode.hexdigest() and res.get("success"):
+            print("transaction: {0}".format(res.get("success")))
+        else:
+            print("transaction: {0} error".format(pay_transaction_id))
+
+def get_payment(options, rest_url, account):
+    con = ClietAPI(rest_url, options)
+    mod_query = "/payment/query/{0}/{1}/".format('2010-05-24', '2010-05-26')
+    res = con.search(mod_query)
+    if res:
+        #print("count: {0} cash: {1}".format(res.get("count"), res.get("payment").get("amount")))
+        print("count: {0}".format(res.get("count")))
+        print("next: {0}".format(res.get("next")))
+        print("previous: {0}".format(res.get("previous")))
+        for p in res.get("payment"):
+            print("cash: {0}".format(p.get("amount")))
+    #mod_query = "/payment/{0}/query/{1}/{2}/".format(account.get("accountcode").get('username'), '2010-05-25', '2010-05-26')
+    #mod_query = "/payment/{0}/".format(account.get("accountcode").get('username'))
+    mod_query = "/payment/"
+    mod_query = '/payment/list/1274876663X48540537100116616803/'
+    res = con.search(mod_query)
+    print(res)
+#----------------------------------------------------------------------
+def post_endpoint(options, rest_url, pay_user, phone):
+    """
+    Добавлям номер телефона к акаунту
+    """
+    con = ClietAPI(rest_url, options)
+    args={'phone': phone, 'username': pay_user, 'enable': 'true', 'password': '48337124', 'description': 'тестовый номер'}
+    res = con.save("post", '/endpoint/', args)
+    if res:
+        print(res)
+
+#----------------------------------------------------------------------
+def get_endpoint(options, rest_url, phone):
+    """"""
+    con = ClietAPI(rest_url, options)
+    res = con.search('/endpoint/phone/{0}/'.format(phone))
+    #print(res)
+    return res.get("phone")
+
+#----------------------------------------------------------------------
+def main():
+    """
+    fs-api -u username 
+    """
+    parser = optparse.OptionParser()
+    config = ConfigParser.ConfigParser()
+    parser.add_option('-u', '--username', action="store", dest="username", help="User Name", default='no')
+    parser.add_option('-s', action="store", dest="section", help="Load configutation", default="default")
+    parser.add_option('-c', '--command', action="store", dest="command", help="Api commands", default="account")
+    parser.add_option('-a', '--action', action="store", dest="action", help="Action [show|create|update|delete]", default="show")
+    parser.add_option( '--start', action="store", dest="start", help="Start pagenation", default=0)
+    parser.add_option( '--limit', action="store", dest="limit", help="Limit pagenation", default=25)
+    parser.add_option('-e', '--email', action="store", dest="email", help="Email", default="no")
+    parser.add_option('-p', '--password', action="store", dest="password", help="Password", default="no")
+    parser.add_option('-t', '--tariff', action="store", dest="tariff", help="ID tariff", default=1)
+    parser.add_option('--enabled', action="store", dest="enabled", help="Enabled account 1=true 0=false", default=1)
+    options, args = parser.parse_args()
+
+    f = os.path.join(os.environ.get("HOME"), '.fsc.ini')
+    if os.path.isfile(f):
+        config.read(f)
+        if options.command == 'account' and options.username == 'no' and options.action == 'show':
+            account.get(options, config)
+        elif options.command == 'account' and options.username and options.action == 'show':
+            account.get(options, config, username=options.username)
+        elif options.command == 'account' and options.username != 'no' and options.action == 'create':
+            try:
+                first_name = args[0]
+            except Exception, e:
+                first_name = None
+            try:
+                last_name = args[1]
+            except Exception, e:
+                last_name = None
+            account.create(options, config, options.username, first_name, last_name)
+        elif options.command == 'account' and options.username != 'no' and options.action == 'update':
+            try:
+                arg = {args[0]: args[1]}
+                account.update(options, config, options.username, arg)
+            except Exception, e:
+                print('fs-api -c account -a update -u <username> <key> <val>')
+        elif options.command == 'account' and options.username != 'no' and options.action == 'delete':
+            account.delete(options, config, options.username)
+    else:
+        print('Is not config file: {0}'.format(f))
+
+if __name__=='__main__':
+    start_time = time.time()
+    main()
+    print("Time: {0:3.4f} min.".format((time.time()-start_time)/60.0))
+    #print("Time: {0}.".format((time.time()-start_time)))
+
+    
