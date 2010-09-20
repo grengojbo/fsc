@@ -6,7 +6,7 @@ import sys
 DIRNAME = os.path.dirname(__file__)
 
 # Dynamically calculate the version based on django.VERSION.
-version = "0.1.2"
+version = "0.1.3"
 
 setup(name='fsc',
     version=version,
@@ -15,7 +15,7 @@ setup(name='fsc',
     keywords='freeswitch',
     author='Oleg Dolya',
     author_email='oleg.dolya@gmail.com',
-    url='http://githubi.com/jbo/fsc/',
+    url='http://github.com/grengojbo/fsa',
     license='GPL',
     include_package_data=True,
     #package_dir = {
@@ -48,5 +48,5 @@ setup(name='fsc',
         'Operating System :: OS Independent',
         'Topic :: Office/Business',
     ],
-    scripts=['scripts/freeswitch-api.py', 'scripts/fs-api.py'],
+    scripts=['scripts/freeswitch-api.py', 'scripts/fs-api'],
 )
