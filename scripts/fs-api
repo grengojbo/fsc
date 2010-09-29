@@ -13,7 +13,7 @@ import time, datetime
 import hashlib
 import random
 import ConfigParser
-from fsc import account
+from fsc import account, endpoint
 
 PATH_CACHE = ".cache"
 
@@ -84,12 +84,13 @@ def main():
     config = ConfigParser.ConfigParser()
     parser.add_option('-u', '--username', action="store", dest="username", help="User Name", default='no')
     parser.add_option('-s', action="store", dest="section", help="Load configutation", default="default")
-    parser.add_option('-c', '--command', action="store", dest="command", help="Api commands", default="account")
+    parser.add_option('-c', '--command', action="store", dest="command", help="Api commands account|endpoint", default="account")
     parser.add_option('-a', '--action', action="store", dest="action", help="Action [show|create|update|delete]", default="show")
     parser.add_option( '--start', action="store", dest="start", help="Start pagenation", default=0)
     parser.add_option( '--limit', action="store", dest="limit", help="Limit pagenation", default=25)
     parser.add_option('-e', '--email', action="store", dest="email", help="Email", default="no")
     parser.add_option('-p', '--password', action="store", dest="password", help="Password", default="no")
+    parser.add_option('--phone', action="store", dest="phone", help="Phone number", default="no")
     parser.add_option('-t', '--tariff', action="store", dest="tariff", help="ID tariff", default=1)
     parser.add_option('--enabled', action="store", dest="enabled", help="Enabled account 1=true 0=false", default=1)
     options, args = parser.parse_args()
@@ -119,6 +120,14 @@ def main():
                 print('fs-api -c account -a update -u <username> <key> <val>')
         elif options.command == 'account' and options.username != 'no' and options.action == 'delete':
             account.delete(options, config, options.username)
+        elif options.command == 'endpoint' and options.username != 'no' and options.action == 'create':
+            endpoint.create(options, config)
+        elif options.command == 'endpoint' and options.action == 'update':
+            try:
+                arg = {args[0]: args[1]}
+                endpoint.update(options, config, arg)
+            except Exception, e:
+                print('fs-api -c endpoint -a update --phone=<phone> <key> <val>')
     else:
         print('Is not config file: {0}'.format(f))
 

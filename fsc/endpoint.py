@@ -12,32 +12,31 @@ import ConfigParser
 PATH_CACHE = ".cache"
 
 #----------------------------------------------------------------------
-def view(account):
-    if account.get('enabled'):
+def view(endpoint):
+    if endpoint.get('enable'):
         enabled = 'enabled'
     else:
         enabled = 'disabled'
-    print('Cash: {0}'.format(account.get('cash')))
-    print('User: {0} [{1}]'.format(account.get('accountcode').get('username'), enabled))
-    print('Tariff: {0} [{1}]'.format(account.get('tariff').get('name'), account.get('tariff').get('id')))
-    print('User Name: {0} {1}'.format(account.get('accountcode').get('first_name'), account.get('accountcode').get('last_name')))
-    print('Date create account: {0}'.format(account.get('accountcode').get('date_joined')))
-    print('Email: {0}'.format(account.get('accountcode').get('email')))
+    print('Phone: {0}'.format(endpoint.get('uid')))
+    print('User: {0} [{1}]'.format(endpoint.get('username'), enabled))
+    print('Password: {0}'.format(endpoint.get('password')))
+    print('Caller Name: {0}'.format(endpoint.get('effective_caller_id_name')))
+    #print('Date create account: {0}'.format(.get('accountcode').get('date_joined')))
+    #print('Email: {0}'.format(.get('accountcode').get('email')))
 
 #----------------------------------------------------------------------
-def get(opt, conf, username=None, arg=None):
+def get(opt, conf, arg=None):
     """
-    просмотр аккаунтов
-    fs-api # все аккаунты
-    fs-api --start=10 --limit=15 # все аккаунты с 10 по 25
-    fs-api -s diller # все аккаунты для диллера diller
-    fs-api -u <username> # просмотр аккаунта username
+    просмотр номера телефона
+    fs-api -c endpoint -u <username> # все телефонные номера для аккаунта username
+    fs-api -c endpoint -u <username> --start=10 --limit=15 # все телефоны с 10 по 25
     """
+    # TODO: доделать пока неработает
     url = "{2}://{0}{1}".format(conf.get(opt.section, 'host'),conf.get(opt.section, 'pref'),conf.get(opt.section, 'protocol'))
     con = Connection(url, username=conf.get(opt.section, 'user'), password=conf.get(opt.section, 'passwd'), path_cache=PATH_CACHE)
     args={'start': opt.start, 'limit': opt.limit}
-    if username is not None:
-        mod_query = "/account/{0}/".format(username)
+    if opt.username is not None:
+        mod_query = "/endpoint/{0}/".format(opt.username)
         res = con.search(mod_query, args)
         #print("res:{0}".format(res))
         if res:
@@ -45,7 +44,7 @@ def get(opt, conf, username=None, arg=None):
         else:
             print('No account: {0}; status: {1}'.format(username,con.status))
     else:
-        mod_query = "/account/"
+        mod_query = "/endpoint/"
         res = con.search(mod_query, args)
         #print(con.response)
         #print("res:{0}".format(res))
@@ -60,60 +59,63 @@ def get(opt, conf, username=None, arg=None):
                     enabled = 'enabled'
                 else:
                     enabled = 'disabled'
-                print("cash: {0}; tariff: [{4}] {5};  username: {1}({3}) {2}".format(a.get("cash"), a.get("accountcode").get('username'), enabled, a.get("accountcode").get('email'), a.get('tariff').get('id'), a.get('tariff').get('name')))
+                print("phone: {0}; password: {1}({2})".format(a.get("uid"), a.get('password'), enabled))
         else:
-            print('No account, status: {0}'.format(con.status))
+            print('No endpoint, status: {0}'.format(con.status))
 
 #----------------------------------------------------------------------
-def create(opt, conf, username, first_name, last_name):
+def create(opt, conf):
     """
-    Добавляем пользователя
-    fs-api -c account -a create -u <username> -e <email> [-p <password> --enabled=<1|0> -t <tariff_id>] [first_name last_name] # новый аккаунт
+    Добавляем новый номер телефона
+    fs-api -c endpoint -a create -u <username> --phone=<phone> [-p <password> --enabled=<1|0>]
     """
     url = "{2}://{0}{1}".format(conf.get(opt.section, 'host'),conf.get(opt.section, 'pref'),conf.get(opt.section, 'protocol'))
-    if opt.email == 'no':
-        print('fs-api -c account -a create -u <username> -e <email> [-p <password> --enabled=<1|0> -t <tariff_id>] [first_name last_name]')
+    if opt.phone == 'no':
+        print('fs-api -c endpoint -a create -u <username> --phone=<phone> [-p <password> --enabled=<1|0>]')
     else:
-
         if int(opt.enabled) == 1:
             enabled = 'true'
         else:
             enabled = 'false'
-        args={'username': opt.username, 'email': opt.email, 'enabled': enabled}
-        if first_name is not None:
-            args['first_name'] = first_name
-        if last_name is not None:
-            args['last_name'] = last_name
+        args={'username': opt.username, 'phone': opt.phone, 'enabled': enabled}
+        #if first_name is not None:
+        #    args['first_name'] = first_name
+        #if last_name is not None:
+        #    args['last_name'] = last_name
         if opt.password != 'no':
             args['password'] = opt.password
         #print(args)
         con = Connection(url, username=conf.get(opt.section, 'user'), password=conf.get(opt.section, 'passwd'), path_cache=PATH_CACHE)
-        res = con.save("post", '/account/', args)
+        res = con.save("post", '/endpoint/', args)
         if res:
             view(res)
         else:
-            print('No create account: {0}; status: {1}'.format(username,con.status))
+            print('No create endpoint: {0}; status: {1}'.format(opt.phone,con.status))
 
 #----------------------------------------------------------------------
-def update(opt, conf, username, arg):
+def update(opt, conf, arg):
     """
-    обновление аккаунта
-    fs-api -c account -a update -u <username> <key> <val>
+    обновление параметров телефонного номера
+    fs-api -c endpoint -a update --phone <phone> <key> <val>
     Пример:
-        fs-api -c account -a update -u testuser first_name Neskaju
+        fs-api -c endpoint -a update --phone 380895000000 effective_caller_id_name Neskaju
     """
     url = "{2}://{0}{1}".format(conf.get(opt.section, 'host'),conf.get(opt.section, 'pref'),conf.get(opt.section, 'protocol'))
     con = Connection(url, username=conf.get(opt.section, 'user'), password=conf.get(opt.section, 'passwd'), path_cache=PATH_CACHE)
-    res = con.save('put', '/account/{0}/'.format(username), arg)
+    res = con.save('put', '/endpoint/phone/{0}/'.format(opt.phone), arg)
+    if res:
+        view(res)
+    else:
+        print('No update endpoint: {0}; status: {1}'.format(opt.phone,con.status))
 
 #----------------------------------------------------------------------
 def delete(opt, conf, username):
     """
-    Удаляем аккаунт
-    fs-api -c account -a delete -u <username>
+    Деактивируем телефон
+    fs-api -c endpoint -a delete --phone <phone>
     """
     url = "{2}://{0}{1}".format(conf.get(opt.section, 'host'),conf.get(opt.section, 'pref'),conf.get(opt.section, 'protocol'))
     con = Connection(url, username=conf.get(opt.section, 'user'), password=conf.get(opt.section, 'passwd'), path_cache=PATH_CACHE)
-    res = con.delete('/account/{0}/'.format(username))
+    res = con.delete('/endpoint/phone/{0}/'.format(opt.phone))
     if res:
         print("Delete: {0}".format(res))
