@@ -4,12 +4,11 @@
 # Purpose:
 # Created: 25.05.2010
 from __future__ import print_function
-import sys
 import os
 import optparse
 from decimal import Decimal
 from fsc.client import ClietAPI
-import time, datetime
+import time
 import hashlib
 import random
 import ConfigParser
@@ -75,6 +74,33 @@ def get_endpoint(options, rest_url, phone):
     #print(res)
     return res.get("phone")
 
+def task_account(prefix, cont):
+    parser = optparse.OptionParser()
+    config = ConfigParser.ConfigParser()
+#    parser.add_option('-u', '--username', action="store", dest="username", help="User Name", default='no')
+    parser.add_option('-s', action="store", dest="section", help="Load configutation", default="default")
+#    parser.add_option('-c', '--command', action="store", dest="command", help="Api commands account|endpoint", default="account")
+#    parser.add_option('-a', '--action', action="store", dest="action", help="Action [show|create|update|delete]", default="show")
+#    parser.add_option( '--start', action="store", dest="start", help="Start pagenation", default=0)
+#    parser.add_option( '--limit', action="store", dest="limit", help="Limit pagenation", default=25)
+    parser.add_option('-e', '--email', action="store", dest="email", help="Email", default="frends@lincom3000.com.ua")
+    parser.add_option('-p', '--password', action="store", dest="password", help="Password", default="no")
+#    parser.add_option('--phone', action="store", dest="phone", help="Phone number", default="no")
+#    parser.add_option('-t', '--tariff', action="store", dest="tariff", help="ID tariff", default=1)
+    parser.add_option('--enabled', action="store", dest="enabled", help="Enabled account 1=true 0=false", default=1)
+    options, args = parser.parse_args()
+    f = os.path.join(os.environ.get("HOME"), '.fsc.ini')
+    if os.path.isfile(f):
+        config.read(f)
+#    for n in range(1, cont+1):
+        for n in range(0, cont):
+            username ="{0}{1}".format(prefix, n)
+            phone ="38089540400{0}".format(n)
+            account.create(options, config, username)
+            endpoint.create(options, config, username, phone)
+    else:
+        print('Is not config file: {0}'.format(f))
+
 #----------------------------------------------------------------------
 def main():
     """
@@ -121,7 +147,7 @@ def main():
         elif options.command == 'account' and options.username != 'no' and options.action == 'delete':
             account.delete(options, config, options.username)
         elif options.command == 'endpoint' and options.username != 'no' and options.action == 'create':
-            endpoint.create(options, config)
+            endpoint.create(options, config, options.username, options.phone)
         elif options.command == 'endpoint' and options.action == 'update':
             try:
                 arg = {args[0]: args[1]}
@@ -133,7 +159,8 @@ def main():
 
 if __name__=='__main__':
     start_time = time.time()
-    main()
+#    main()
+    task_account("usalincom", 10)
     print("Time: {0:3.4f} min.".format((time.time()-start_time)/60.0))
     #print("Time: {0}.".format((time.time()-start_time)))
 

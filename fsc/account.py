@@ -65,7 +65,7 @@ def get(opt, conf, username=None, arg=None):
             print('No account, status: {0}'.format(con.status))
 
 #----------------------------------------------------------------------
-def create(opt, conf, username, first_name, last_name):
+def create(opt, conf, username, first_name=None, last_name=None):
     """
     Добавляем пользователя
     fs-api -c account -a create -u <username> -e <email> [-p <password> --enabled=<1|0> -t <tariff_id>] [first_name last_name] # новый аккаунт
@@ -79,7 +79,7 @@ def create(opt, conf, username, first_name, last_name):
             enabled = 'true'
         else:
             enabled = 'false'
-        args={'username': opt.username, 'email': opt.email, 'enabled': enabled}
+        args={'username': username, 'email': opt.email, 'enabled': enabled}
         if first_name is not None:
             args['first_name'] = first_name
         if last_name is not None:

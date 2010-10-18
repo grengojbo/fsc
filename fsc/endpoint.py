@@ -1,14 +1,7 @@
 # -*- mode: python; coding: utf-8; -*-
 from __future__ import print_function
-import sys
-import optparse
-from decimal import Decimal
-from fsc.client import ClietAPI
 from restfull.client import Connection
-import time, datetime
-import hashlib
-import random
-import ConfigParser
+
 PATH_CACHE = ".cache"
 
 #----------------------------------------------------------------------
@@ -64,20 +57,21 @@ def get(opt, conf, arg=None):
             print('No endpoint, status: {0}'.format(con.status))
 
 #----------------------------------------------------------------------
-def create(opt, conf):
+def create(opt, conf, username, phone="no"):
     """
     Добавляем новый номер телефона
     fs-api -c endpoint -a create -u <username> --phone=<phone> [-p <password> --enabled=<1|0>]
     """
     url = "{2}://{0}{1}".format(conf.get(opt.section, 'host'),conf.get(opt.section, 'pref'),conf.get(opt.section, 'protocol'))
-    if opt.phone == 'no':
+    #TODO: если неуказан номер то берет первый из списка
+    if phone == 'no':
         print('fs-api -c endpoint -a create -u <username> --phone=<phone> [-p <password> --enabled=<1|0>]')
     else:
         if int(opt.enabled) == 1:
             enabled = 'true'
         else:
             enabled = 'false'
-        args={'username': opt.username, 'phone': opt.phone, 'enabled': enabled}
+        args={'username': username, 'phone': phone, 'enabled': enabled}
         #if first_name is not None:
         #    args['first_name'] = first_name
         #if last_name is not None:
