@@ -1,1 +1,2 @@
 git+git://github.com/grengojbo/restfull.git
+git+git://github.com/grengojbo/fsc.git
