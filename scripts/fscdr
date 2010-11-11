@@ -1,0 +1,95 @@
+#!/usr/bin/env python
+#coding:utf-8
+# Author:   --<>
+# Purpose:
+# Created: 25.05.2010
+from __future__ import print_function
+import logging
+import os, os.path, sys
+import optparse
+from decimal import Decimal
+import urllib2
+from urllib2 import urlparse
+import simplejson
+from restfull.client import Connection
+import time, datetime
+import hashlib
+import random
+import urllib
+import ConfigParser
+
+DIRNAME = os.path.dirname(__file__)
+
+PATH_CACHE = "/tmp/.fscache"
+PATH_LOG = "/opt/freeswitch/log/"
+if not os.path.isdir(PATH_LOG):
+    PATH_LOG = '/var/log/'
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s', datefmt='%a, %d %b %Y %H:%M:%S')
+fileLog = logging.FileHandler(os.path.join(PATH_LOG, "fscdr.log"))
+fileLog.setLevel(logging.ERROR)
+logging.getLogger('').addHandler(fileLog)
+log = logging.getLogger('fscdr')
+
+
+def main():
+    """
+    """
+    parser = optparse.OptionParser()
+    config = ConfigParser.ConfigParser()
+    options, args = parser.parse_args()
+
+    f = os.path.join(os.environ.get("HOME"), '.fsc.ini')
+    fdef = '/etc/fsc.ini'
+    if os.path.isfile(f):
+        config.read(f)
+        load_dir(config)
+    elif os.path.isfile(fdef):
+        config.read(fdef)
+        load_dir(config)
+    else:
+        print("Is not INI files: {0} or {1}".format(f, fdef))
+
+
+
+def load_dir(conf):
+    directory = os.path.dirname(conf.get('cdr', 'cdr_dir'))
+    limit_reads = 1
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    elif not os.path.isdir(directory):
+        raise IOError("{0} exists and is not a directory.".format(directory))
+    names = os.listdir(directory)   # список файлов и поддиректорий в данной директории
+    for name in names:
+        fullname = os.path.join(directory, name)  # получаем полное имя
+        if os.path.isfile(fullname) and limit_reads > 0:
+            try:
+                log.debug("read file: {0}".format(fullname))
+                cdr_file = open(fullname, "r+")
+                limit_reads-=limit_reads
+                try:
+                    cdr = urllib.unquote(cdr_file.read())
+                finally:
+                    cdr_file.close()
+                conn = Connection(conf.get('cdr', 'base_url'), username=conf.get('cdr', 'api_user'), password=conf.get('cdr', 'api_pass'), path_cache=PATH_CACHE)
+                res = conn.request("/cdr/", "post", args = {"cdr": cdr}, headers={'Accept':'text/json'})
+                headers = res.get('headers')
+                status = headers.get('status', headers.get('Status'))
+#                if res:
+#                    print(res)
+                if status in ['200', 200, '204', 204]:
+                    #os.remove(fullname)
+                    #body = simplejson.loads(res.get('body').encode('UTF-8'))
+                    #print("body: {0} file: {1}".format(body, fullname))
+                    #log.debug("body: {0} file: {1}".format(body, fullname))
+                    log.debug("remove: {0}".format(fullname))
+                else:
+                    print("status: {0} file: {1}".format(status, fullname))
+                    #log.error("status: {0} file: {1}".format(status, fullname))
+            except:
+                log.error("no load: {0}".format(fullname))
+
+if __name__=='__main__':
+    start_time = time.time()
+    main()
+    print(u"Обшее время выполнения: {0:3.2f}".format((time.time() - start_time)/60))
