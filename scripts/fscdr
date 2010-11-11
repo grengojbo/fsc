@@ -28,6 +28,7 @@ if not os.path.isdir(PATH_LOG):
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s', datefmt='%a, %d %b %Y %H:%M:%S')
 fileLog = logging.FileHandler(os.path.join(PATH_LOG, "fscdr.log"))
 fileLog.setLevel(logging.ERROR)
+#fileLog.setLevel(logging.DEBUG)
 logging.getLogger('').addHandler(fileLog)
 log = logging.getLogger('fscdr')
 
@@ -42,9 +43,11 @@ def main():
     f = os.path.join(os.environ.get("HOME"), '.fsc.ini')
     fdef = '/etc/fsc.ini'
     if os.path.isfile(f):
+        log.debug("load config: {0}".format(f))
         config.read(f)
         load_dir(config)
     elif os.path.isfile(fdef):
+        log.debug("load config: {0}".format(fdef))
         config.read(fdef)
         load_dir(config)
     else:
@@ -54,7 +57,9 @@ def main():
 
 def load_dir(conf):
     directory = os.path.dirname(conf.get('cdr', 'cdr_dir'))
-    limit_reads = 1
+    limit_reads = 1000
+    if not os.path.exists(conf.get('cdr', 'cdr_dir_410')):
+        os.makedirs(conf.get('cdr', 'cdr_dir_410'))
     if not os.path.exists(directory):
         os.makedirs(directory)
     elif not os.path.isdir(directory):
@@ -62,11 +67,12 @@ def load_dir(conf):
     names = os.listdir(directory)   # список файлов и поддиректорий в данной директории
     for name in names:
         fullname = os.path.join(directory, name)  # получаем полное имя
+        fullname_410 = os.path.join(conf.get('cdr', 'cdr_dir_410'), name)
         if os.path.isfile(fullname) and limit_reads > 0:
             try:
                 log.debug("read file: {0}".format(fullname))
                 cdr_file = open(fullname, "r+")
-                limit_reads-=limit_reads
+                limit_reads-=1
                 try:
                     cdr = urllib.unquote(cdr_file.read())
                 finally:
@@ -75,21 +81,22 @@ def load_dir(conf):
                 res = conn.request("/cdr/", "post", args = {"cdr": cdr}, headers={'Accept':'text/json'})
                 headers = res.get('headers')
                 status = headers.get('status', headers.get('Status'))
-#                if res:
-#                    print(res)
+                #if res:
+                #    print(res)
                 if status in ['200', 200, '204', 204]:
-                    #os.remove(fullname)
+                    os.remove(fullname)
                     #body = simplejson.loads(res.get('body').encode('UTF-8'))
                     #print("body: {0} file: {1}".format(body, fullname))
-                    #log.debug("body: {0} file: {1}".format(body, fullname))
                     log.debug("remove: {0}".format(fullname))
+                elif status in ['410', 410]:
+                    os.rename(fullname, fullname_410)
+                    log.error("status: {0} file: {1}".format(status, fullname))
                 else:
-                    print("status: {0} file: {1}".format(status, fullname))
-                    #log.error("status: {0} file: {1}".format(status, fullname))
+                    log.error("status: {0} file: {1}".format(status, fullname))
             except:
                 log.error("no load: {0}".format(fullname))
 
 if __name__=='__main__':
     start_time = time.time()
     main()
-    print(u"Обшее время выполнения: {0:3.2f}".format((time.time() - start_time)/60))
+    log.debug(u"Обшее время выполнения: {0:3.2f}".format((time.time() - start_time)/60))
