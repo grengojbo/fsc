@@ -159,8 +159,8 @@ def main():
 
 if __name__=='__main__':
     start_time = time.time()
-#    main()
-    task_account("usalincom", 10)
+    main()
+    #task_account("usalincom", 10)
     print("Time: {0:3.4f} min.".format((time.time()-start_time)/60.0))
     #print("Time: {0}.".format((time.time()-start_time)))
 

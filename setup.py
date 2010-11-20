@@ -6,7 +6,7 @@ import sys
 DIRNAME = os.path.dirname(__file__)
 
 # Dynamically calculate the version based on django.VERSION.
-version = "0.1.5"
+version = "0.1.6"
 
 setup(name='fsc',
     version=version,
@@ -48,5 +48,5 @@ setup(name='fsc',
         'Operating System :: OS Independent',
         'Topic :: Office/Business',
     ],
-    scripts=['scripts/freeswitch-api.py', 'scripts/fs-api', 'scripts/fscdr'],
+    scripts=['scripts/freeswitch-api.py', 'scripts/fs-api', 'scripts/fs-cdr'],
 )
