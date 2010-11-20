@@ -11,9 +11,9 @@ def view(endpoint):
     else:
         enabled = 'disabled'
     print('Phone: {0}'.format(endpoint.get('uid')))
-    print('User: {0} [{1}]'.format(endpoint.get('username'), enabled))
+    print(u'User: {0} [{1}]'.format(endpoint.get('username'), enabled))
     print('Password: {0}'.format(endpoint.get('password')))
-    print('Caller Name: {0}'.format(endpoint.get('effective_caller_id_name')))
+    print(u'Caller Name: {0}'.format(endpoint.get('effective_caller_id_name')))
     #print('Date create account: {0}'.format(.get('accountcode').get('date_joined')))
     #print('Email: {0}'.format(.get('accountcode').get('email')))
 
@@ -60,12 +60,12 @@ def get(opt, conf, arg=None):
 def create(opt, conf, username, phone="no"):
     """
     Добавляем новый номер телефона
-    fs-api -c endpoint -a create -u <username> --phone=<phone> [-p <password> --enabled=<1|0>]
+    fs-api -c endpoint -a create -u <username> --phone=<phone> [-p <password> --enabled=<1|0>] [-s site]
     """
     url = "{2}://{0}{1}".format(conf.get(opt.section, 'host'),conf.get(opt.section, 'pref'),conf.get(opt.section, 'protocol'))
     #TODO: если неуказан номер то берет первый из списка
     if phone == 'no':
-        print('fs-api -c endpoint -a create -u <username> --phone=<phone> [-p <password> --enabled=<1|0>]')
+        print('fs-api -c endpoint -a create -u <username> --phone=<phone> [-p <password> --enabled=<1|0>] [-s site]')
     else:
         if int(opt.enabled) == 1:
             enabled = 'true'

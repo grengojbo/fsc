@@ -34,5 +34,8 @@ fs-api -c account -a create -u <username> -e <email> [-p <password> --enabled=<1
     fs-api -s diller # все аккаунты для диллера diller
     fs-api -u <username> # просмотр аккаунта username
 
+Добавляем новый номер телефона
+    fs-api -c endpoint -a create -u <username> --phone=<phone> [-p <password> --enabled=<1|0>] [-s site]
+
 run
 fs-cdr
