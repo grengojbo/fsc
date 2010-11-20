@@ -18,16 +18,16 @@ def view(account):
     else:
         enabled = 'disabled'
     print('Cash: {0}'.format(account.get('cash')))
-    print('User: {0} [{1}]'.format(account.get('accountcode').get('username'), enabled))
-    print('Tariff: {0} [{1}]'.format(account.get('tariff').get('name'), account.get('tariff').get('id')))
-    print('User Name: {0} {1}'.format(account.get('accountcode').get('first_name'), account.get('accountcode').get('last_name')))
-    print('Date create account: {0}'.format(account.get('accountcode').get('date_joined')))
-    print('Email: {0}'.format(account.get('accountcode').get('email')))
+    print(u'User: {0} [{1}]'.format(account.get('accountcode').get('username'), enabled))
+    print(u'Tariff: {0} [{1}]'.format(account.get('tariff').get('name'), account.get('tariff').get('id')))
+    print(u'User Name: {0} {1}'.format(account.get('accountcode').get('first_name'), account.get('accountcode').get('last_name')))
+    print(u'Date create account: {0}'.format(account.get('accountcode').get('date_joined')))
+    print(u'Email: {0}'.format(account.get('accountcode').get('email')))
 
 #----------------------------------------------------------------------
 def get(opt, conf, username=None, arg=None):
     """
-    просмотр аккаунтов
+    Просмотр аккаунтов
     fs-api # все аккаунты
     fs-api --start=10 --limit=15 # все аккаунты с 10 по 25
     fs-api -s diller # все аккаунты для диллера diller

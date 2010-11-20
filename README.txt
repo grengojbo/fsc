@@ -28,5 +28,11 @@ cdr_dir_410 = /opt/freeswitch/log/xml_cdr_410/
 fs-api -c account -a create -u <username> -e <email> [-p <password> --enabled=<1|0> -t <tariff_id>] [first_name last_name]
     если указано -s dev то подключение к API будет от имени пользователя dev.example.com
 
+Просмотр аккаунтов
+    fs-api # все аккаунты
+    fs-api --start=10 --limit=15 # все аккаунты с 10 по 25
+    fs-api -s diller # все аккаунты для диллера diller
+    fs-api -u <username> # просмотр аккаунта username
+
 run
 fs-cdr
