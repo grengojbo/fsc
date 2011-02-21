@@ -5,7 +5,7 @@ pip install tddspry
 
 pip install -r http://github.com/grengojbo/fsc/raw/master/scripts/req.txt
 
-create config file /etc/fsc.ini
+create config file in home dir ~/.fsc.ini
 [default]
 user = fsuser
 host = example.com
