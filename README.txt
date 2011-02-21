@@ -1,4 +1,7 @@
 INSTALL
+sudo pip install nose coverage
+pip install tddspry
+
 
 pip install -r http://github.com/grengojbo/fsc/raw/master/scripts/req.txt
 
