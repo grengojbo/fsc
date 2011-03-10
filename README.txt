@@ -40,5 +40,6 @@ fs-api -c account -a create -u <username> -e <email> [-p <password> --enabled=<1
 Добавляем новый номер телефона
     fs-api -c endpoint -a create -u <username> --phone=<phone> [-p <password> --enabled=<1|0>] [-s site]
 
-run
-fs-cdr
+Запись CDR
+Если по каким лтбо причинам FreeSWITCH несмог передать CDR запись он сохраняет файлы в /opt/freeswitch/log/xml_cdr/
+то для добавления Вы можете использовать fs-cdr скрипт
