@@ -21,15 +21,15 @@ import ConfigParser
 DIRNAME = os.path.dirname(__file__)
 
 PATH_CACHE = "/tmp/.fscache"
-#PATH_LOG = "/opt/freeswitch/log/"
-PATH_LOG = "./"
+PATH_LOG = "/opt/freeswitch/log/"
+#PATH_LOG = "./"
 if not os.path.isdir(PATH_LOG):
     PATH_LOG = '/var/log/'
 
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s', datefmt='%a, %d %b %Y %H:%M:%S')
 fileLog = logging.FileHandler(os.path.join(PATH_LOG, "fscdr.log"))
-fileLog.setLevel(logging.ERROR)
-#fileLog.setLevel(logging.DEBUG)
+#fileLog.setLevel(logging.ERROR)
+fileLog.setLevel(logging.DEBUG)
 logging.getLogger('').addHandler(fileLog)
 log = logging.getLogger('fscdr')
 
@@ -57,7 +57,7 @@ def main():
 
 
 
-def load_dir(conf, limit_reads=1):
+def load_dir(conf, limit_reads=100):
     directory = os.path.dirname(conf.get('cdr', 'cdr_dir'))
     if not os.path.exists(conf.get('cdr', 'cdr_dir_410')):
         os.makedirs(conf.get('cdr', 'cdr_dir_410'))
