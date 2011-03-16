@@ -1,9 +1,8 @@
 INSTALL
 sudo pip install nose coverage
-pip install tddspry
+sudo pip install tddspry
 
-
-pip install -r http://github.com/grengojbo/fsc/raw/master/scripts/req.txt
+sudo pip install -r http://github.com/grengojbo/fsc/raw/master/scripts/req.txt
 
 create config file in home dir ~/.fsc.ini
 [default]
@@ -26,6 +25,9 @@ api_user = login
 api_pass = password
 cdr_dir = /opt/freeswitch/log/xml_cdr/
 cdr_dir_410 = /opt/freeswitch/log/xml_cdr_410/
+
+chown freeswitch:root /etc/fsc.ini
+chmod 660 /etc/fsc.ini
 
 Добавляем пользователя
 fs-api -c account -a create -u <username> -e <email> [-p <password> --enabled=<1|0> -t <tariff_id>] [first_name last_name]
