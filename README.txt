@@ -43,5 +43,5 @@ fs-api -c account -a create -u <username> -e <email> [-p <password> --enabled=<1
     fs-api -c endpoint -a create -u <username> --phone=<phone> [-p <password> --enabled=<1|0>] [-s site]
 
 Запись CDR
-Если по каким лтбо причинам FreeSWITCH несмог передать CDR запись он сохраняет файлы в /opt/freeswitch/log/xml_cdr/
+Если по каким либо причинам FreeSWITCH несмог передать CDR запись он сохраняет файлы в /opt/freeswitch/log/xml_cdr/
 то для добавления Вы можете использовать fs-cdr скрипт
